@@ -76,14 +76,14 @@ def add(v1: Vector, v2: Vector) -> Vector:
 
 
 def sub(v1: Vector, v2: Vector) -> Vector:
-    """ Calculate the dot product of 2 n-dimensional vectors
+    """ Subtract 2 n-dimensional vectors
 
     Args:
         v1: A vector object
         v2: A vector object
 
     Returns:
-        Returns the dot product as an real number
+        Returns the difference as a new vector
 
     Raises:
       DimensionError: If vectors are not the same size.
@@ -98,23 +98,61 @@ def sub(v1: Vector, v2: Vector) -> Vector:
             vec.arr.append(v1.arr[i] - v2.arr[i])
 
 def scalarmult(alpha: int, v1: Vector) -> Vector:
+    """ Multiply an n-dimensional vector with a scalar
+
+    Args:
+        alpha: A real number
+        v1: A vector object
+
+    Returns:
+        Returns the product as a new vector
+    
+    """
     vec = Vector(v1.n, [alpha * x for x in v1.arr])
     
     return vec
 
 def norm(v1: Vector, type: str = "euclidean") -> int:
-    if type == "abs":
-        val = Vector.dot(v1, v1)
-        return math.sqrt(v1)
+    """ Calculate the norm of a vector
+
+    Args:
+        v1: A vector object
+        type: {euclidean, manhattan, inf}
+              The order of magnitude to calculate
+
+    Returns:
+        Returns the magnitude of a vector as an integer
+    
+    """
+
+    if type == "manhattan":
+        return sum([x for x in v1.arr])
+    
     elif type == "euclidean":
         return math.sqrt(sum([x**2 for x in v1.arr]))
+    
     elif type == "inf":
         m = max([abs(x) for x in v1.arr])
         return m
-    
+
+
 def cross(v1: Vector, v2: Vector) -> Vector:
+    """ Calculates the cross products of 2 3-dimensional vectors
+
+    Args:
+        v1: A vector object
+        v2: A vector object
+
+    Returns:
+        Returns the result of the cross product as a new vector
+
+    Raises:
+      DimensionError: If any vector is not 3-D.
+    """
+
     vec = Vector(3, [])
-    if (v1.n != 3):
+
+    if (v1.n != 3 or v2.n != 3):
         return "Error: Cross product is only defined for 3-dimensional vectors."
     
     vec.arr[0] = v1.arr[1]*v2.arr[2] - v1.arr[2]*v2.arr[1]
@@ -124,8 +162,21 @@ def cross(v1: Vector, v2: Vector) -> Vector:
     return vec
 
 def proj(v1: Vector, v2: Vector) -> Vector: 
-    if (v1.n != v2.n):
-        return "Error: Vectors must be the same size."
+    """ Calculates the projection of v1 onto v2
+
+    Args:
+        v1: A vector object
+        v2: A vector object
+
+    Returns:
+        Returns the result of the cross product as a new vector
+
+    Raises:
+      DimensionError: If v2 isn't non-zero
+    """
+
+    if (norm(v2, "manhattan") == 0):
+        return "Error: v2 must be non-zero."
     
     n = Vector.dot(v1, v2)
     d = Vector.dot(v2, v2)
