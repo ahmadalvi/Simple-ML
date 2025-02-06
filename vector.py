@@ -6,24 +6,13 @@ class Vector():
         self.arr = arr
     
     def disp(self):
-        max_len = len(str(max(self.arr))) + 2
-        
-        if max_len <= 3:
-            for i in range(self.n):
-                print("[{:^3}]".format(self.arr[i]))
-        elif max_len <= 5:
-            for i in range(self.n):
-                print("[{:^5}]".format(self.arr[i]))
-        elif max_len <= 7:
-            for i in range(self.n):
-                print("[{:^7}]".format(self.arr[i]))
-        elif max_len <= 9:
-            for i in range(self.n):
-                print("[{:^9}]".format(self.arr[i]))
-        elif max_len <= 11:
-            for i in range(self.n):
-                print("[{:^11}]".format(self.arr[i]))
-        
+        print("[ ", end="")
+        for i in range(self.n):
+            print(self.arr[i], end=" ")
+        print("]")
+
+class DimensionError(Exception):
+    pass
 
 def dot(v1: Vector, v2: Vector) -> int:
     """ Calculate the dot product of 2 n-dimensional vectors
@@ -40,9 +29,9 @@ def dot(v1: Vector, v2: Vector) -> int:
     
     """
     sum_ = 0
-
+    
     if v1.n != v2.n:
-        return "Error: Vectors must be the same size."
+        raise DimensionError("Error: Vectors must be the same size.")
     else:
         for i in range(v1.n):
             sum_ += v1.arr[i] * v2.arr[i]
@@ -67,7 +56,7 @@ def add(v1: Vector, v2: Vector) -> Vector:
     vec = Vector(v1.n, [])
 
     if v1.n != v2.n:
-        return "Error: Vectors must be the same size."
+        raise DimensionError("Error: Vectors must be the same size.")
     else:
         for i in range(v1.n):
             vec.arr.append(v1.arr[i] + v2.arr[i])
@@ -92,10 +81,11 @@ def sub(v1: Vector, v2: Vector) -> Vector:
     vec = Vector(v1.n, [])
 
     if v1.n != v2.n:
-        return "Error: Vectors must be the same size."
+        raise DimensionError("Error: Vectors must be the same size.")
     else:
         for i in range(v1.n):
             vec.arr.append(v1.arr[i] - v2.arr[i])
+
 
 def scalarmult(alpha: int, v1: Vector) -> Vector:
     """ Multiply an n-dimensional vector with a scalar
@@ -112,6 +102,7 @@ def scalarmult(alpha: int, v1: Vector) -> Vector:
     
     return vec
 
+
 def norm(v1: Vector, type: str = "euclidean") -> int:
     """ Calculate the norm of a vector
 
@@ -127,10 +118,8 @@ def norm(v1: Vector, type: str = "euclidean") -> int:
 
     if type == "manhattan":
         return sum([x for x in v1.arr])
-    
     elif type == "euclidean":
         return math.sqrt(sum([x**2 for x in v1.arr]))
-    
     elif type == "inf":
         m = max([abs(x) for x in v1.arr])
         return m
@@ -153,13 +142,14 @@ def cross(v1: Vector, v2: Vector) -> Vector:
     vec = Vector(3, [])
 
     if (v1.n != 3 or v2.n != 3):
-        return "Error: Cross product is only defined for 3-dimensional vectors."
+        raise DimensionError("Error: Cross product is only defined for 3-dimensional vectors.")
     
     vec.arr[0] = v1.arr[1]*v2.arr[2] - v1.arr[2]*v2.arr[1]
     vec.arr[1] = v1.arr[2]*v2.arr[0] - v1.arr[0]*v2.arr[2]
     vec.arr[2] = v1.arr[0]*v2.arr[1] - v1.arr[1]*v2.arr[0]
 
     return vec
+
 
 def proj(v1: Vector, v2: Vector) -> Vector: 
     """ Calculates the projection of v1 onto v2
@@ -176,7 +166,7 @@ def proj(v1: Vector, v2: Vector) -> Vector:
     """
 
     if (norm(v2, "manhattan") == 0):
-        return "Error: v2 must be non-zero."
+        raise DimensionError("Error: v2 must be non-zero.")
     
     n = Vector.dot(v1, v2)
     d = Vector.dot(v2, v2)
