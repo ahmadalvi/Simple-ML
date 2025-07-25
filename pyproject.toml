@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simpleML"
+version = "0.1.0"
+description = "A machine learning library from scratch in Python."
+authors = [
+  { name = "Ahmad Alvi", email = "ahmadalvi2018@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+  # keep this empty or include minimal ones like:
+  # "matplotlib",  # if used in examples
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "black",
+  "flake8",
+  "mypy",
+  "isort",
+]
+
+[tool.setuptools]
+packages = ["yourml"]
+
+[tool.setuptools.packages.find]
+where = ["."]
