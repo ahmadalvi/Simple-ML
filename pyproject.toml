@@ -11,7 +11,7 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "MIT"
 dependencies = [
   # keep this empty or include minimal ones like:
   # "matplotlib",  # if used in examples
@@ -27,7 +27,4 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["yourml"]
-
-[tool.setuptools.packages.find]
-where = ["."]
+packages = ["simpleML"]

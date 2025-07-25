@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+simpleML/__init__.py
+simpleML/main.py
+simpleML.egg-info/PKG-INFO
+simpleML.egg-info/SOURCES.txt
+simpleML.egg-info/dependency_links.txt
+simpleML.egg-info/requires.txt
+simpleML.egg-info/top_level.txt
