@@ -1,176 +1,182 @@
 import math
+from core.exceptions import DimensionError
 
 class Vector():
-    def __init__(self, n, arr):
-        self.n = n
+    def __init__(self, arr):
         self.arr = arr
+        self.n = len(arr)
     
-    def disp(self):
+    def __repr__(self):
         print("[ ", end="")
         for i in range(self.n):
             print(self.arr[i], end=" ")
         print("]")
 
-class DimensionError(Exception):
-    pass
+    def __eq__(self, other):
+        return isinstance(other, Vector) and self.arr == other.arr
 
-def dot(v1: Vector, v2: Vector) -> int:
-    """ Calculate the dot product of 2 n-dimensional vectors
+    def dot(self, other) -> int:
+        """ Calculate the dot product of 2 n-dimensional vectors
 
-    Args:
-        v1: A vector object
-        v2: A vector object
+        Args:
+            self: A vector object
+            other: A vector object
 
-    Returns:
-        Returns the dot product as an real number
+        Returns:
+            Returns the dot product as an real number
 
-    Raises:
-      DimensionError: If vectors are not the same size.
-    
-    """
-    sum_ = 0
-    
-    if v1.n != v2.n:
-        raise DimensionError("Error: Vectors must be the same size.")
-    else:
-        for i in range(v1.n):
-            sum_ += v1.arr[i] * v2.arr[i]
-
-    return sum_
-
-
-def add(v1: Vector, v2: Vector) -> Vector:
-    """ Add 2 n-dimensional vectors together
-
-    Args:
-        v1: A vector object
-        v2: A vector object
-
-    Returns:
-        Returns the sum of the 2 vectors as a new vector
-
-    Raises:
-      DimensionError: If vectors are not the same size.
-    
-    """
-    vec = Vector(v1.n, [])
-
-    if v1.n != v2.n:
-        raise DimensionError("Error: Vectors must be the same size.")
-    else:
-        for i in range(v1.n):
-            vec.arr.append(v1.arr[i] + v2.arr[i])
+        Raises:
+        DimensionError: If vectors are not the same size.
         
-    return vec
+        """
+        sum_ = 0
+        
+        if self.n != other.n:
+            raise DimensionError("Error: Vectors must be the same size.")
+        else:
+            for i in range(self.n):
+                sum_ += self.arr[i] * other.arr[i]
+
+        return sum_
 
 
-def sub(v1: Vector, v2: Vector) -> Vector:
-    """ Subtract 2 n-dimensional vectors
+    def __add__(self, other) -> 'Vector':
+        """ Add 2 n-dimensional vectors together
 
-    Args:
-        v1: A vector object
-        v2: A vector object
+        Args:
+            self: A vector object
+            other: A vector object
 
-    Returns:
-        Returns the difference as a new vector
+        Returns:
+            Returns the sum of the 2 vectors as a new vector
 
-    Raises:
-      DimensionError: If vectors are not the same size.
-    
-    """
-    vec = Vector(v1.n, [])
+        Raises:
+        DimensionError: If vectors are not the same size.
+        
+        """
+        vec = Vector([])
 
-    if v1.n != v2.n:
-        raise DimensionError("Error: Vectors must be the same size.")
-    else:
-        for i in range(v1.n):
-            vec.arr.append(v1.arr[i] - v2.arr[i])
-
-
-def scalarmult(alpha: int, v1: Vector) -> Vector:
-    """ Multiply an n-dimensional vector with a scalar
-
-    Args:
-        alpha: A real number
-        v1: A vector object
-
-    Returns:
-        Returns the product as a new vector
-    
-    """
-    vec = Vector(v1.n, [alpha * x for x in v1.arr])
-    
-    return vec
+        if self.n != other.n:
+            raise DimensionError("Error: Vectors must be the same size.")
+        else:
+            for i in range(self.n):
+                vec.arr.append(self.arr[i] + other.arr[i])
+            
+        return vec
 
 
-def norm(v1: Vector, type: str = "euclidean") -> int:
-    """ Calculate the norm of a vector
+    def __sub__(self, other) -> 'Vector':
+        """ Subtract 2 n-dimensional vectors
 
-    Args:
-        v1: A vector object
-        type: {euclidean, manhattan, inf}
-              The order of magnitude to calculate
+        Args:
+            self: A vector object
+            other: A vector object
 
-    Returns:
-        Returns the magnitude of a vector as an integer
-    
-    """
+        Returns:
+            Returns the difference as a new vector
 
-    if type == "manhattan":
-        return sum([x for x in v1.arr])
-    elif type == "euclidean":
-        return math.sqrt(sum([x**2 for x in v1.arr]))
-    elif type == "inf":
-        m = max([abs(x) for x in v1.arr])
-        return m
+        Raises:
+        DimensionError: If vectors are not the same size.
+        
+        """
+        vec = Vector([])
 
-
-def cross(v1: Vector, v2: Vector) -> Vector:
-    """ Calculates the cross products of 2 3-dimensional vectors
-
-    Args:
-        v1: A vector object
-        v2: A vector object
-
-    Returns:
-        Returns the result of the cross product as a new vector
-
-    Raises:
-      DimensionError: If any vector is not 3-D.
-    """
-
-    vec = Vector(3, [])
-
-    if (v1.n != 3 or v2.n != 3):
-        raise DimensionError("Error: Cross product is only defined for 3-dimensional vectors.")
-    
-    vec.arr[0] = v1.arr[1]*v2.arr[2] - v1.arr[2]*v2.arr[1]
-    vec.arr[1] = v1.arr[2]*v2.arr[0] - v1.arr[0]*v2.arr[2]
-    vec.arr[2] = v1.arr[0]*v2.arr[1] - v1.arr[1]*v2.arr[0]
-
-    return vec
+        if self.n != other.n:
+            raise DimensionError("Error: Vectors must be the same size.")
+        else:
+            for i in range(self.n):
+                vec.arr.append(self.arr[i] - other.arr[i])
+        return vec
 
 
-def proj(v1: Vector, v2: Vector) -> Vector: 
-    """ Calculates the projection of v1 onto v2
+    def scalarmult(self, alpha: int) -> 'Vector':
+        """ Multiply an n-dimensional vector with a scalar
 
-    Args:
-        v1: A vector object
-        v2: A vector object
+        Args:
+            self: A vector object
+            alpha: A real number
 
-    Returns:
-        Returns the result of the cross product as a new vector
+        Returns:
+            Returns the product as a new vector
+        
+        """
+        vec = Vector([alpha * x for x in self.arr])
+        
+        return vec
 
-    Raises:
-      DimensionError: If v2 isn't non-zero
-    """
 
-    if (norm(v2, "manhattan") == 0):
-        raise DimensionError("Error: v2 must be non-zero.")
-    
-    n = Vector.dot(v1, v2)
-    d = Vector.dot(v2, v2)
+    def norm(self, type: str = "euclidean") -> int:
+        """ Calculate the norm of a vector
 
-    vec = Vector.scalarmult(n/d, v2)
+        Args:
+            self: A vector object
+            type: {euclidean, manhattan, inf}
+                The order of magnitude to calculate
 
-    return vec
+        Returns:
+            Returns the magnitude of a vector as an integer
+        
+        """
+
+        if self.n == 0:
+            return 0
+
+        if type == "manhattan":
+            return sum([abs(x) for x in self.arr])
+        elif type == "euclidean":
+            return math.sqrt(sum([x**2 for x in self.arr]))
+        elif type == "inf":
+            m = max([abs(x) for x in self.arr])
+            return m
+
+
+    def cross(self, other) -> 'Vector':
+        """ Calculates the cross products of 2 3-dimensional vectors
+
+        Args:
+            self: A vector object
+            other: A vector object
+
+        Returns:
+            Returns the result of the cross product as a new vector
+
+        Raises:
+        DimensionError: If any vector is not 3-D.
+        """
+
+        if (other.n != 3 or other.n != 3):
+            raise DimensionError("Error: Cross product is only defined for 3-dimensional vectors.")
+        
+        
+        arr = [
+            self.arr[1]*other.arr[2] - self.arr[2]*other.arr[1], 
+            self.arr[2]*other.arr[0] - self.arr[0]*other.arr[2],
+            self.arr[0]*other.arr[1] - self.arr[1]*other.arr[0]
+        ]
+
+        return Vector(arr)
+
+
+    def proj(self, other) -> 'Vector': 
+        """ Calculates the projection of v1 onto v2
+
+        Args:
+            self: A vector object
+            other: A vector object
+
+        Returns:
+            Returns the result of the cross product as a new vector
+
+        Raises:
+        DimensionError: If v2 isn't non-zero
+        """
+
+        if (other.norm("manhattan") == 0):
+            raise DimensionError("Error: v2 must be non-zero.")
+        
+        n = self.dot(other)
+        d = other.dot(other)
+
+        vec = other.scalarmult(n/d)
+
+        return vec
