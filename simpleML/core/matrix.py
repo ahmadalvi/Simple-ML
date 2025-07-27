@@ -1,162 +1,340 @@
-class Matrix:
-    def __init__(self, n: int, m: int, mat: list):
-        assert len(mat) == n * m, "Matrix size does not match dimensions"
-        assert n >= 0 and m >= 0, "Matrix cannot have negative dimensions"
-        assert len(mat[0]) == n, f"Expected {n} columns, got {len(mat[0])}"
-        assert len(mat) == m, f"Expected {m} rows, got {len(mat)}"
+from core.exceptions import DimensionError
+from core.vector import Vector
 
-        self.n = n
-        self.m = m
+
+class Matrix:
+    def __init__(self, mat: list[list[int]]):
         self.mat = mat
+        self.columns = len(mat[0])
+        self.rows = len(mat)
 
     def disp(self):
         rows = int(len(self.mat) / self.n)
         for i in range(rows):
-            row = self.mat[i * self.n:(i + 1) * self.n]  # Slice the array into rows
-            print(" ".join(f"{x:4}" for x in row))  # Format each row for alignment
+            row = self.mat[i * self.n : (i + 1) * self.n]
+            print(" ".join(f"{x:4}" for x in row))
 
-class DimensionError(Exception):
-    pass
+    def trace(self) -> int:
+        """Calculates the trace of a matrix
+
+        Args:
+            m: A Matrix object
+
+        Returns:
+            Returns an integer object, the sum of the diagonal elements of the matrix
+
+        Raises:
+            DimensionError: The matrix provided must be a square matrix
+
+        """
+        if self.rows != self.columns:
+            raise DimensionError("Matrix must be square to calculate trace.")
+
+        return sum(self.mat[i][i] for i in range(self.rows))
+
+    def transpose(self) -> "Matrix":
+        """Transpose a matrix
+
+        Args:
+            m: A Matrix object
+
+        Returns:
+            Returns the transpose of a matrix
+        """
+
+        transposed = [
+            [self.mat[j][i] for j in range(self.rows)] for i in range(self.columns)
+        ]
+        return Matrix(transposed)
+
+    def add(self, other) -> "Matrix":
+        """Add 2 matrices together
+
+        Args:
+            self: A Matrix object
+            other: A Matrix object
+
+        Returns:
+            Returns the sum of the 2 matrices as a new matrix
+
+        Raises:
+            DimensionError: If the vecotrs are not the same size.
+
+        """
+        if (self.rows != other.rows) or (self.columns != other.columns):
+            raise DimensionError("Matrices must have the same dimension")
+
+        matrix = self.mat.copy()
+
+        for i in range(len(self.mat)):
+            for j in range(len(self.mat[i])):
+                matrix[i][j] += other.mat[i][j]
+
+        return matrix
+
+    def sub(self, other) -> "Matrix":
+        """Subtract 2 matrices
+
+        Args:
+            m1: A Matrix object
+            m2: A Matrix object
+
+        Returns:
+            Returns the difference of the 2 matrices as a new matrix
+
+        Raises:
+            DimensionError: If the vecotrs are not the same size.
+
+        """
+        if self.n != other.n:
+            raise ValueError("Matrices must have the same dimension")
+
+        matrix = self.mat.copy()
+
+        for i in range(len(self.mat)):
+            for j in range(len(self.mat[i])):
+                matrix[i][j] -= other.mat[i][j]
+
+        return matrix
+
+    def scalar_mult(self, scalar: int) -> "Matrix":
+        """Multiply a matrix with a scalar
+
+        Args:
+            self: a Matrix object
+            scalar: and integer
+
+        Returns:
+            Returns a new Matrix object with each element multiplied by the scalar
+        """
+
+        return Matrix(
+            [
+                [(self.mat[i][j] * scalar) for j in range(self.columns)]
+                for i in range(self.rows)
+            ]
+        )
+
+    def vector_mult(self, vector: Vector):
+        """Multiply a matrix with a vector
+
+        Args:
+            self: a Matrix object
+            vector: a Vector object
+
+        Returns:
+            Returns a new Vector object with the result of the multiplication
+        """
+
+        if self.columns != vector.n:
+            raise DimensionError(
+                "Matrix columns must match vector size for multiplication."
+            )
+
+        result = [0] * self.rows
+
+        for i in range(self.rows):
+            for j in range(self.columns):
+                result[i] += self.mat[i][j] * vector.arr[j]
+
+        return Vector(result)
+
+    def matrix_mult(self, other) -> "Matrix":
+        """Multiply 2 matrices together
+
+        Args:
+            self: A Matrix object
+            other: A Matrix object
+
+        Returns:
+            Returns the product of the 2 matrices as a new matrix
+
+        Raises:
+            DimensionError: If the matrices are not compatible for multiplication.
+
+        """
+        if self.columns != other.rows:
+            raise DimensionError("Matrices are not compatible for multiplication.")
+
+        result = [[0 for _ in range(other.columns)] for _ in range(self.rows)]
+
+        for i in range(self.rows):
+            for j in range(other.columns):
+                for k in range(self.columns):
+                    result[i][j] += self.mat[i][k] * other.mat[k][j]
+
+        return Matrix(result)
+
+    def inverse(self) -> "Matrix":
+        """Calculate the inverse of a matrix
+
+        Args:
+            self: A Matrix object
+
+        Returns:
+            Returns the inverse of the matrix as a new Matrix object
+
+        Raises:
+            DimensionError: If the matrix is not square or not invertible.
+
+        """
+        if self.rows != self.columns:
+            raise DimensionError("Matrix must be square to calculate inverse.")
+
+        pass
+
+    def is_orthogonal(self) -> bool:
+        """Check if a matrix is orthogonal (a square matrix whose columns (and rows)
+            form an orthonormal set of vectors, meaning each column has a unit length
+            and is orthogonal to all other columns)
+
+        Args:
+            self: A Matrix object
+
+        Returns:
+            True if the matrix is orthogonal, False otherwise
+
+        """
+        pass
+
+    def is_singular(self) -> bool:
+        """Check if a matrix is singular (i.e. it does not have an inverse)
+
+        Args:
+            self: A Matrix object
+
+        Returns:
+            True if the matrix is singular, False otherwise
+
+        """
+        pass
+
+    def is_idempotent(self) -> bool:
+        """Check if a matrix is idempotent (i.e. multiplying the matrix by itself
+            yields the same matrix)
+
+        Args:
+            self: A Matrix object
+        Returns:
+            True if the matrix is idempotent, False otherwise
+        """
+        pass
+
+    def is_involutary(self) -> bool:
+        """Check if a matrix is involutary (i.e. its own inverse)
+        Args:
+            self: A Matrix object
+        Returns:
+            True if the matrix is involutary, False otherwise
+        """
+        pass
+
+    def determinant(self) -> int:
+        """Calculate the determinant of a matrix
+        Args:
+            self: A Matrix object
+        Returns:
+            Returns the determinant as an integer
+        Raises:
+            DimensionError: If the matrix is not square.
+        """
+        pass
+
+    def eigenvalues(self) -> list[float]:
+        """Calculate the eigenvalues of a matrix
+        Args:
+            self: A Matrix object
+        Returns:
+            Returns a list of eigenvalues as floats
+        Raises:
+            DimensionError: If the matrix is not square.
+        """
+        pass
+
+    def eigenvectors(self) -> list[Vector]:
+        """Calculate the eigenvectors of a matrix
+        Args:
+            self: A Matrix object
+        Returns:
+            Returns a list of eigenvectors as Vector objects
+        Raises:
+            DimensionError: If the matrix is not square.
+        """
+        pass
+
+    def rank(self) -> int:
+        """Calculate the rank of a matrix
+        Args:
+            self: A Matrix object
+        Returns:
+            Returns the rank as an integer
+        """
+
+        pass
+
+    def nullity(self) -> int:
+        """Calculate the nullity of a matrix
+        Args:
+            self: A Matrix object
+        Returns:
+            Returns the rank as an integer
+        """
+        pass
+
+    def conjugate_transpose(self) -> "Matrix":
+        """Calculate the conjugate transpose of a matrix
+        Args:
+            self: A Matrix object
+        Returns:
+        """
+        pass
+
+    def is_square(self) -> bool:
+        """Check if a matrix is square (i.e. has the same number of rows and columns)
+        Args:
+            self: A Matrix object
+        Returns:
+            True if the matrix is square, False otherwise
+        """
+        return self.rows == self.columns
+
 
 def identity(n: int) -> Matrix:
-    """ Create an nxn identity matrix
+    """Create an nxn identity matrix
 
     Args:
         n: A positive integer
-    
+
     Returns:
-        Returns a Matrix object 
-    
+        Returns a Matrix object
+
     """
-    m = Matrix(n, n, [])
-    length = n * n
-    
-    for i in range(length):
-        if i % (n + 1) == 0:
-            m.mat.append(1)
-        else:
-            m.mat.append(0)
-    return m
+
+    return Matrix([[1 if i == j else 0 for j in range(n)] for i in range(n)])
+
 
 def zeros(n: int) -> Matrix:
-    """ Creates a matrix full of zeroes
+    """Creates a matrix full of zeroes
 
     Args:
         n: A positive integer
-    
+
     Returns:
         Returns a Matrix Object
 
     """
-    m = Matrix(n, [])
-    for i in range(n * n):
-        m.mat.append(0)
-    return m
+
+    return Matrix([[0 for _ in range(n)] for _ in range(n)])
+
 
 def ones(n: int) -> Matrix:
-    """ Creates a matrix full of ones
+    """Creates a matrix full of ones
 
     Args:
         n: A positive integer
-    
+
     Returns:
         Returns a Matrix Object
-        
+
     """
-    matrix = Matrix(n, [])
-    for i in range(n * n):
-        matrix.mat.append(1)
-
-def trace(m: Matrix) -> int:
-    """ Calculates the trace of a matrix
-
-    Args:
-        m: A Matrix object
-    
-    Returns:
-        Returns an integer object, the sum of the diagonal elements of the matrix
-    
-    Raises:
-        DimensionError: The matrix provided must be a square matrix
-        
-    """
-    rows = int(len(m.mat) / m.n)
-
-    if rows != m.n:
-        raise DimensionError("Matrix must be square")
-
-    _sum = 0
-    for i in range(0, len(m.mat), m.n + 1):
-        _sum += m.mat[i]
-    return _sum
-
-
-def add(m1: Matrix, m2: Matrix) -> Matrix:
-    """ Add 2 matrices together
-    
-    Args:
-        m1: A Matrix object
-        m2: A Matrix object
-    
-    Returns:
-        Returns the sum of the 2 matrices as a new matrix
-    
-    Raises:
-        DimensionError: If the vecotrs are not the same size.
-    
-    """
-    if (m1.n != m2.n):
-        raise DimensionError("Matrices must have the same dimension")
-    
-    matrix = Matrix(m1.n, [])
-    for i in range(len(m1.mat)):
-        matrix.mat.append(m1.mat[i] + m2.mat[i])
-    
-    return matrix
-
-
-def sub(m1: Matrix, m2: Matrix) -> Matrix:
-    """ Subtract 2 matrices
-    
-    Args:
-        m1: A Matrix object
-        m2: A Matrix object
-    
-    Returns:
-        Returns the difference of the 2 matrices as a new matrix
-    
-    Raises:
-        DimensionError: If the vecotrs are not the same size.
-    
-    """
-    if (m1.n != m2.n):
-        raise ValueError("Matrices must have the same dimension")
-    
-    matrix = Matrix(m1.n, [])
-    for i in range(len(m1.mat)):
-        matrix.mat.append(m1.mat[i] - m2.mat[i])
-
-    return matrix
-
-
-def transpose(m: Matrix) -> Matrix:
-    """ Transpose a matrix
-
-    Args:
-        m: A Matrix object
-    
-    Returns:
-        Returns the transpose of a matrix
-    """
-
-    rows = int(len(m.mat) / m.n)
-    cols = m.n
-
-    transposed = [
-        m.mat[row + col * rows]  # Transpose index calculation
-        for col in range(cols)
-        for row in range(rows)
-    ]
-
-    t = Matrix(rows, transposed)
-    return t
+    return Matrix([[1 for _ in range(n)] for _ in range(n)])

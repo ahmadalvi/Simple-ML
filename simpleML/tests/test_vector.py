@@ -2,6 +2,7 @@ import unittest
 from core.vector import Vector
 from core.exceptions import DimensionError
 
+
 class TestVector(unittest.TestCase):
 
     def test_dot(self):
@@ -55,7 +56,7 @@ class TestVector(unittest.TestCase):
         v1 = Vector([1, 2])
         v2 = Vector([3, 4, 5])
         with self.assertRaises(DimensionError):
-            _ = v1 + v2 
+            _ = v1 + v2
 
     def test_length_mismatch_dot(self):
         v1 = Vector([1])
@@ -71,7 +72,7 @@ class TestVector(unittest.TestCase):
         v2 = Vector([])
         self.assertEqual(v2.scalarmult(scalar), Vector([]))
 
-        self.assertEqual(v1.scalarmult(0), Vector([0,0,0]))
+        self.assertEqual(v1.scalarmult(0), Vector([0, 0, 0]))
 
     def test_norm(self):
         v1 = Vector([3, 4])
@@ -122,5 +123,6 @@ class TestVector(unittest.TestCase):
         v2 = Vector([2, 2, 1])
         self.assertEqual(v1.proj(v2), Vector([0, 0, 0]))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
