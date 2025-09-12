@@ -7,11 +7,16 @@ class Matrix:
         self.mat = mat
         self.columns = len(mat[0])
         self.rows = len(mat)
+    
+    def __eq__(self, value):
+        if not isinstance(value, Matrix):
+            return False
+        return self.mat == value.mat
 
     def disp(self):
-        rows = int(len(self.mat) / self.n)
+        rows = int(len(self.mat) / self.columns)
         for i in range(rows):
-            row = self.mat[i * self.n : (i + 1) * self.n]
+            row = self.mat[i * self.columns : (i + 1) * self.columns]
             print(" ".join(f"{x:4}" for x in row))
 
     def trace(self) -> int:
@@ -70,7 +75,7 @@ class Matrix:
             for j in range(len(self.mat[i])):
                 matrix[i][j] += other.mat[i][j]
 
-        return matrix
+        return Matrix(matrix)
 
     def sub(self, other) -> "Matrix":
         """Subtract 2 matrices
@@ -86,7 +91,7 @@ class Matrix:
             DimensionError: If the vecotrs are not the same size.
 
         """
-        if self.n != other.n:
+        if self.columns != other.columns or self.rows != other.rows:
             raise ValueError("Matrices must have the same dimension")
 
         matrix = self.mat.copy()
@@ -95,7 +100,7 @@ class Matrix:
             for j in range(len(self.mat[i])):
                 matrix[i][j] -= other.mat[i][j]
 
-        return matrix
+        return Matrix(matrix)
 
     def scalar_mult(self, scalar: int) -> "Matrix":
         """Multiply a matrix with a scalar
@@ -238,7 +243,23 @@ class Matrix:
         Raises:
             DimensionError: If the matrix is not square.
         """
-        pass
+
+        if self.rows != self.columns:
+            raise DimensionError("Matrix must be square to calculate determinant.")
+
+        if self.rows == 2:
+            return self.mat[0][0] * self.mat[1][1] - self.mat[0][1] * self.mat[1][0]
+
+        det = 0
+        for j in range(self.columns):
+            sub_matrix = [
+                [self.mat[i][k] for k in range(self.columns) if k != j]
+                for i in range(1, self.rows)
+            ]
+            sign = (-1) ** j
+            det += sign * self.mat[0][j] * Matrix(sub_matrix).determinant()
+
+        return det
 
     def eigenvalues(self) -> list[float]:
         """Calculate the eigenvalues of a matrix
