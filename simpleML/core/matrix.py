@@ -47,7 +47,7 @@ class Matrix:
             Returns the rank of the matrix as an integer
         """
         if self.is_diagonal():
-            return self.rows
+            return sum(1 for i in range(self.rows) if self.mat[i][i] != 0)
 
         matrix = self.mat.copy()
         rows = len(self.mat)
@@ -60,7 +60,7 @@ class Matrix:
             max_val = tol
             for r in range(row, rows):
                 if abs(matrix[r][col]) > max_val:
-                    max_val = abs(self.mat[r][col])
+                    max_val = abs(matrix[r][col])
                     pivot = r
 
             if pivot is None:

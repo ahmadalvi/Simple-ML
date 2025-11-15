@@ -9,6 +9,8 @@ class TestMatrix(unittest.TestCase):
     def setUp(self):
         self.m1 = Matrix([[1, 2], [3, 4]])
         self.m2 = Matrix([[5, 6], [7, 8]])
+        self.m3 = Matrix([[1, 2], [0, 0]])
+        self.m4 = Matrix([[0, 0], [0, 0]])
         self.v = Vector([1, 2])
 
     # ---- trace() ----
@@ -19,6 +21,12 @@ class TestMatrix(unittest.TestCase):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
         with self.assertRaises(DimensionError):
             m.trace()
+
+    # ---- rank() ----
+    def test_rank(self):
+        self.assertEqual(self.m1.rank(), 2)
+        self.assertEqual(self.m3.rank(), 1)
+        self.assertEqual(self.m4.rank(), 0)
 
     # ---- transpose() ----
     def test_transpose(self):
