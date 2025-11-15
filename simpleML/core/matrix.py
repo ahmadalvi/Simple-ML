@@ -12,7 +12,7 @@ class Matrix:
         if not isinstance(value, Matrix):
             return False
         return self.mat == value.mat
-    
+
     def disp(self):
         rows = int(len(self.mat) / self.columns)
         for i in range(rows):
@@ -36,7 +36,7 @@ class Matrix:
             raise DimensionError("Matrix must be square to calculate trace.")
 
         return sum(self.mat[i][i] for i in range(self.rows))
-    
+
     def rank(self, tol=1e-9) -> int:
         """Calculate the rank of a matrix.
 
@@ -48,7 +48,7 @@ class Matrix:
         """
         if self.is_diagonal():
             return self.rows
-        
+
         matrix = self.mat.copy()
         rows = len(self.mat)
         cols = len(self.mat[0])
@@ -62,7 +62,7 @@ class Matrix:
                 if abs(matrix[r][col]) > max_val:
                     max_val = abs(self.mat[r][col])
                     pivot = r
-            
+
             if pivot is None:
                 continue
 
@@ -74,11 +74,11 @@ class Matrix:
             for r in range(row + 1, rows):
                 factor = matrix[r][col]
                 matrix[r] = [a - factor * b for a, b in zip(matrix[r], matrix[row])]
-            
-            row += 1 
+
+            row += 1
             rank += 1
         return rank
-    
+
     def transpose(self) -> "Matrix":
         """Transpose a matrix
 
@@ -212,7 +212,7 @@ class Matrix:
 
         return Matrix(result)
 
-    def is_diagonal(self) -> bool: 
+    def is_diagonal(self) -> bool:
         """Check if a matrix is diagonal
         Args:
             self: A Matrix object
@@ -226,7 +226,7 @@ class Matrix:
                 if i != j and self.mat[i][j] != 0:
                     return False
         return True
-    
+
     def is_upper_triangular(self) -> bool:
         """Check if a matrix is upper triangular
 
@@ -241,20 +241,20 @@ class Matrix:
                 if self.mat[i][j] != 0:
                     return False
         return True
-    
+
     def lu_decomposition(self) -> tuple["Matrix", "Matrix"]:
         """Perform LU Decomposition on a matrix
-        
+
         Args:
             self: A matrix object
-        
+
         Returns:
             Returns a tuple containing the lower and uppoer triangular matrices aa Matrix Objects
-            
+
         Raises:
             DimensionError: If the matrix is not square.
         """
-    
+
         if self.rows != self.columns:
             raise DimensionError("Matrix must be square for LU Decomposition.")
 
@@ -263,25 +263,25 @@ class Matrix:
         n = self.rows
 
         for i in range(n):
-            for j in range(i+1, n):
+            for j in range(i + 1, n):
                 m = -1 * (U[j][i] / U[i][i])
                 U[j][i] = 0
-                for k in range(i+1, n):
+                for k in range(i + 1, n):
                     U[j][k] += m * U[i][k]
                 L[j][i] = -1 * m
-        
+
         return (Matrix(L), Matrix(U))
 
     def forward_substitution(self, b: Vector) -> Vector:
         """Perform Forward Substitution on a matrix, given a vector b
-        
+
         Args:
             self: A matrix object
             b: A Vector object
-        
+
         Returns:
             Returns a Vector object y such that Ly = b
-            
+
         Raises:
             DimensionError: If the matrix is not square.
         """
@@ -290,29 +290,29 @@ class Matrix:
         for i in range(self.rows):
             for j in range(i):
                 y[i] = round(y[i] - self.mat[i][j] * y[j], 6)
-        
+
         return Vector(y)
 
     def backward_substitution(self, y: Vector) -> Vector:
         """Perform Backward Substitution on a matrix, given a vector y
-        
+
         Args:
             self: A matrix object
             y: A Vector object
-        
+
         Returns:
             Returns a Vector object x such that Ux = y
-            
+
         Raises:
             DimensionError: If the matrix is not square.
         """
         x = y.arr.copy()
 
         for i in range(self.rows - 1, -1, -1):
-            for j in range(i+1, self.columns):
+            for j in range(i + 1, self.columns):
                 x[i] -= self.mat[i][j] * x[j]
             x[i] = round(x[i] / self.mat[i][i], 6)
-        
+
         return Vector(x)
 
     def inverse(self) -> "Matrix":
@@ -332,8 +332,10 @@ class Matrix:
             raise DimensionError("Matrix must be square to calculate inverse.")
 
         if self.rank() < self.rows:
-            raise DimensionError("Matrix is not invertible, rank of matrix is less than its size.")
-    
+            raise DimensionError(
+                "Matrix is not invertible, rank of matrix is less than its size."
+            )
+
         L, U = self.lu_decomposition()
         n = self.rows
 
@@ -350,7 +352,6 @@ class Matrix:
                 inverse_mat[i][k] = x.arr[i]
 
         return Matrix(inverse_mat)
-
 
     def determinant(self) -> int:
         """Calculate the determinant of a matrix
@@ -384,6 +385,7 @@ class Matrix:
             det += sign * self.mat[0][j] * Matrix(sub_matrix).determinant()
 
         return det
+
 
 def identity(n: int) -> Matrix:
     """Create an nxn identity matrix

@@ -66,12 +66,9 @@ class TestMatrix(unittest.TestCase):
 
     # ---- lu_decomposition() ----
     def test_lu_decomposition_2x2(self):
-        A = Matrix([[4, 3],
-                    [6, 3]])
-        L_expected = Matrix([[1, 0],
-                             [1.5, 1]])
-        U_expected = Matrix([[4, 3],
-                             [0, -1.5]])
+        A = Matrix([[4, 3], [6, 3]])
+        L_expected = Matrix([[1, 0], [1.5, 1]])
+        U_expected = Matrix([[4, 3], [0, -1.5]])
 
         L, U = A.lu_decomposition()
         self.assertEqual(L, L_expected)
@@ -84,18 +81,13 @@ class TestMatrix(unittest.TestCase):
         self.assertEqual(U, Matrix([[1, 0], [0, 1]]))
 
     def test_lu_decomposition_non_square_raises(self):
-        A = Matrix([[1, 2, 3],
-                    [4, 5, 6]])
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
         with self.assertRaises(DimensionError):
             A.lu_decomposition()
 
     # ---- forward_substitution() ----
     def test_forward_substitution_basic(self):
-        L = Matrix([
-            [1, 0, 0],
-            [2, 1, 0],
-            [-1, 4, 1]
-        ])
+        L = Matrix([[1, 0, 0], [2, 1, 0], [-1, 4, 1]])
         b = Vector([1, 2, 3])
 
         y_expected = Vector([1, 0, 4])
@@ -109,11 +101,7 @@ class TestMatrix(unittest.TestCase):
 
     # ---- backward_substitution() ----
     def test_backward_substitution_basic(self):
-        U = Matrix([
-            [2, 3, -1],
-            [0, 4, 2],
-            [0, 0, 5]
-        ])
+        U = Matrix([[2, 3, -1], [0, 4, 2], [0, 0, 5]])
         y = Vector([3, 6, 10])
 
         x_expected = Vector([1.75, 0.5, 2])
@@ -127,25 +115,13 @@ class TestMatrix(unittest.TestCase):
 
     # ---- inverse() ----
     def test_inverse_2x2(self):
-        A = Matrix([[4, 7],
-                    [2, 6]])
-        A_inv_expected = Matrix([
-            [0.6, -0.7],
-            [-0.2, 0.4]
-        ])
+        A = Matrix([[4, 7], [2, 6]])
+        A_inv_expected = Matrix([[0.6, -0.7], [-0.2, 0.4]])
         self.assertEqual(A.inverse().mat, A_inv_expected.mat)
 
     def test_inverse_3x3(self):
-        A = Matrix([
-            [1, 2, 3],
-            [0, 1, 4],
-            [5, 6, 0]
-        ])
-        A_inv_expected = Matrix([
-            [-24, 18, 5],
-            [20, -15, -4],
-            [-5, 4, 1]
-        ])
+        A = Matrix([[1, 2, 3], [0, 1, 4], [5, 6, 0]])
+        A_inv_expected = Matrix([[-24, 18, 5], [20, -15, -4], [-5, 4, 1]])
         self.assertEqual(A.inverse().mat, A_inv_expected.mat)
 
     def test_inverse_identity(self):
@@ -153,9 +129,6 @@ class TestMatrix(unittest.TestCase):
         self.assertEqual(I.inverse().mat, I.mat)
 
     def test_inverse_non_invertible_raises(self):
-        A = Matrix([
-            [1, 2],
-            [2, 4]
-        ])
+        A = Matrix([[1, 2], [2, 4]])
         with self.assertRaises(DimensionError):
             A.inverse()
