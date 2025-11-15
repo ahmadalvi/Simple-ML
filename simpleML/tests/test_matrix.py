@@ -23,11 +23,11 @@ class TestMatrix(unittest.TestCase):
     # ---- transpose() ----
     def test_transpose(self):
         m = Matrix([[1, 2], [3, 4]])
-        self.assertEqual(m.transpose(), Matrix([[1, 3], [2, 4]]))
+        self.assertEqual(m.transpose().mat, Matrix([[1, 3], [2, 4]]).mat)
 
     # ---- add() ----
     def test_add_valid(self):
-        self.assertEqual(self.m1.add(self.m2), Matrix([[6, 8], [10, 12]]))
+        self.assertEqual(self.m1.add(self.m2).mat, Matrix([[6, 8], [10, 12]]).mat)
 
     def test_add_dimension_mismatch(self):
         m3 = Matrix([[1, 2, 3], [4, 5, 6]])
@@ -62,7 +62,100 @@ class TestMatrix(unittest.TestCase):
 
     # ---- matrix_mult() ----
     def test_matrix_mult_valid(self):
-        # [ [1,2], [3,4] ] * [ [5,6], [7,8] ]
-        # = [ [1*5+2*7, 1*6+2*8], [3*5+4*7, 3*6+4*8] ]
-        # = [ [19, 22], [43, 50] ]
         self.assertEqual(self.m1.matrix_mult(self.m2), Matrix([[19, 22], [43, 50]]))
+
+    # ---- lu_decomposition() ----
+    def test_lu_decomposition_2x2(self):
+        A = Matrix([[4, 3],
+                    [6, 3]])
+        L_expected = Matrix([[1, 0],
+                             [1.5, 1]])
+        U_expected = Matrix([[4, 3],
+                             [0, -1.5]])
+
+        L, U = A.lu_decomposition()
+        self.assertEqual(L, L_expected)
+        self.assertEqual(U, U_expected)
+
+    def test_lu_decomposition_identity(self):
+        A = Matrix([[1, 0], [0, 1]])
+        L, U = A.lu_decomposition()
+        self.assertEqual(L, Matrix([[1, 0], [0, 1]]))
+        self.assertEqual(U, Matrix([[1, 0], [0, 1]]))
+
+    def test_lu_decomposition_non_square_raises(self):
+        A = Matrix([[1, 2, 3],
+                    [4, 5, 6]])
+        with self.assertRaises(DimensionError):
+            A.lu_decomposition()
+
+    # ---- forward_substitution() ----
+    def test_forward_substitution_basic(self):
+        L = Matrix([
+            [1, 0, 0],
+            [2, 1, 0],
+            [-1, 4, 1]
+        ])
+        b = Vector([1, 2, 3])
+
+        y_expected = Vector([1, 0, 4])
+        y = L.forward_substitution(b)
+        self.assertEqual(y, y_expected)
+
+    def test_forward_substitution_identity(self):
+        L = Matrix([[1, 0], [0, 1]])
+        b = Vector([7, 9])
+        self.assertEqual(L.forward_substitution(b), b)
+
+    # ---- backward_substitution() ----
+    def test_backward_substitution_basic(self):
+        U = Matrix([
+            [2, 3, -1],
+            [0, 4, 2],
+            [0, 0, 5]
+        ])
+        y = Vector([3, 6, 10])
+
+        x_expected = Vector([1.75, 0.5, 2])
+        x = U.backward_substitution(y)
+        self.assertEqual(x, x_expected)
+
+    def test_backward_substitution_identity(self):
+        U = Matrix([[1, 0], [0, 1]])
+        y = Vector([5, -3])
+        self.assertEqual(U.backward_substitution(y), y)
+
+    # ---- inverse() ----
+    def test_inverse_2x2(self):
+        A = Matrix([[4, 7],
+                    [2, 6]])
+        A_inv_expected = Matrix([
+            [0.6, -0.7],
+            [-0.2, 0.4]
+        ])
+        self.assertEqual(A.inverse().mat, A_inv_expected.mat)
+
+    def test_inverse_3x3(self):
+        A = Matrix([
+            [1, 2, 3],
+            [0, 1, 4],
+            [5, 6, 0]
+        ])
+        A_inv_expected = Matrix([
+            [-24, 18, 5],
+            [20, -15, -4],
+            [-5, 4, 1]
+        ])
+        self.assertEqual(A.inverse().mat, A_inv_expected.mat)
+
+    def test_inverse_identity(self):
+        I = Matrix([[1, 0], [0, 1]])
+        self.assertEqual(I.inverse().mat, I.mat)
+
+    def test_inverse_non_invertible_raises(self):
+        A = Matrix([
+            [1, 2],
+            [2, 4]
+        ])
+        with self.assertRaises(DimensionError):
+            A.inverse()

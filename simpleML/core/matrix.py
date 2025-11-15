@@ -3,16 +3,16 @@ from core.vector import Vector
 
 
 class Matrix:
-    def __init__(self, mat: list[list[int]]):
+    def __init__(self, mat):
         self.mat = mat
-        self.columns = len(mat[0])
         self.rows = len(mat)
-    
+        self.columns = len(mat[0]) if mat else 0
+
     def __eq__(self, value):
         if not isinstance(value, Matrix):
             return False
         return self.mat == value.mat
-
+    
     def disp(self):
         rows = int(len(self.mat) / self.columns)
         for i in range(rows):
@@ -36,7 +36,49 @@ class Matrix:
             raise DimensionError("Matrix must be square to calculate trace.")
 
         return sum(self.mat[i][i] for i in range(self.rows))
+    
+    def rank(self, tol=1e-9) -> int:
+        """Calculate the rank of a matrix.
 
+        Args:
+            self: A Matrix object
+
+        Returns:
+            Returns the rank of the matrix as an integer
+        """
+        if self.is_diagonal():
+            return self.rows
+        
+        matrix = self.mat.copy()
+        rows = len(self.mat)
+        cols = len(self.mat[0])
+        rank = 0
+        row = 0
+
+        for col in range(cols):
+            pivot = None
+            max_val = tol
+            for r in range(row, rows):
+                if abs(matrix[r][col]) > max_val:
+                    max_val = abs(self.mat[r][col])
+                    pivot = r
+            
+            if pivot is None:
+                continue
+
+            matrix[row], matrix[pivot] = matrix[pivot], matrix[row]
+
+            pivot_val = matrix[row][col]
+            matrix[row] = [x / pivot_val for x in matrix[row]]
+
+            for r in range(row + 1, rows):
+                factor = matrix[r][col]
+                matrix[r] = [a - factor * b for a, b in zip(matrix[r], matrix[row])]
+            
+            row += 1 
+            rank += 1
+        return rank
+    
     def transpose(self) -> "Matrix":
         """Transpose a matrix
 
@@ -170,6 +212,109 @@ class Matrix:
 
         return Matrix(result)
 
+    def is_diagonal(self) -> bool: 
+        """Check if a matrix is diagonal
+        Args:
+            self: A Matrix object
+
+        Returns:
+            Returns True if the matrix is diagonal, False otherwise
+
+        """
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if i != j and self.mat[i][j] != 0:
+                    return False
+        return True
+    
+    def is_upper_triangular(self) -> bool:
+        """Check if a matrix is upper triangular
+
+        Args:
+            self: A Matrix object
+
+        Returns:
+            Returns True if the matrix is diagonal, False otherwise
+        """
+        for i in range(1, self.rows):
+            for j in range(min(i, self.columns)):
+                if self.mat[i][j] != 0:
+                    return False
+        return True
+    
+    def lu_decomposition(self) -> tuple["Matrix", "Matrix"]:
+        """Perform LU Decomposition on a matrix
+        
+        Args:
+            self: A matrix object
+        
+        Returns:
+            Returns a tuple containing the lower and uppoer triangular matrices aa Matrix Objects
+            
+        Raises:
+            DimensionError: If the matrix is not square.
+        """
+    
+        if self.rows != self.columns:
+            raise DimensionError("Matrix must be square for LU Decomposition.")
+
+        L = identity(self.rows).mat
+        U = self.mat.copy()
+        n = self.rows
+
+        for i in range(n):
+            for j in range(i+1, n):
+                m = -1 * (U[j][i] / U[i][i])
+                U[j][i] = 0
+                for k in range(i+1, n):
+                    U[j][k] += m * U[i][k]
+                L[j][i] = -1 * m
+        
+        return (Matrix(L), Matrix(U))
+
+    def forward_substitution(self, b: Vector) -> Vector:
+        """Perform Forward Substitution on a matrix, given a vector b
+        
+        Args:
+            self: A matrix object
+            b: A Vector object
+        
+        Returns:
+            Returns a Vector object y such that Ly = b
+            
+        Raises:
+            DimensionError: If the matrix is not square.
+        """
+        y = b.arr.copy()
+
+        for i in range(self.rows):
+            for j in range(i):
+                y[i] = round(y[i] - self.mat[i][j] * y[j], 6)
+        
+        return Vector(y)
+
+    def backward_substitution(self, y: Vector) -> Vector:
+        """Perform Backward Substitution on a matrix, given a vector y
+        
+        Args:
+            self: A matrix object
+            y: A Vector object
+        
+        Returns:
+            Returns a Vector object x such that Ux = y
+            
+        Raises:
+            DimensionError: If the matrix is not square.
+        """
+        x = y.arr.copy()
+
+        for i in range(self.rows - 1, -1, -1):
+            for j in range(i+1, self.columns):
+                x[i] -= self.mat[i][j] * x[j]
+            x[i] = round(x[i] / self.mat[i][i], 6)
+        
+        return Vector(x)
+
     def inverse(self) -> "Matrix":
         """Calculate the inverse of a matrix
 
@@ -186,53 +331,26 @@ class Matrix:
         if self.rows != self.columns:
             raise DimensionError("Matrix must be square to calculate inverse.")
 
-        pass
+        if self.rank() < self.rows:
+            raise DimensionError("Matrix is not invertible, rank of matrix is less than its size.")
+    
+        L, U = self.lu_decomposition()
+        n = self.rows
 
-    def is_orthogonal(self) -> bool:
-        """Check if a matrix is orthogonal (a square matrix whose columns (and rows)
-            form an orthonormal set of vectors, meaning each column has a unit length
-            and is orthogonal to all other columns)
+        inverse_mat = [[0.0 for _ in range(n)] for _ in range(n)]
 
-        Args:
-            self: A Matrix object
+        for k in range(n):
+            e_k = Vector([1 if i == k else 0 for i in range(n)])
 
-        Returns:
-            True if the matrix is orthogonal, False otherwise
+            y = L.forward_substitution(e_k)
 
-        """
-        pass
+            x = U.backward_substitution(y)
 
-    def is_singular(self) -> bool:
-        """Check if a matrix is singular (i.e. it does not have an inverse)
+            for i in range(n):
+                inverse_mat[i][k] = x.arr[i]
 
-        Args:
-            self: A Matrix object
+        return Matrix(inverse_mat)
 
-        Returns:
-            True if the matrix is singular, False otherwise
-
-        """
-        pass
-
-    def is_idempotent(self) -> bool:
-        """Check if a matrix is idempotent (i.e. multiplying the matrix by itself
-            yields the same matrix)
-
-        Args:
-            self: A Matrix object
-        Returns:
-            True if the matrix is idempotent, False otherwise
-        """
-        pass
-
-    def is_involutary(self) -> bool:
-        """Check if a matrix is involutary (i.e. its own inverse)
-        Args:
-            self: A Matrix object
-        Returns:
-            True if the matrix is involutary, False otherwise
-        """
-        pass
 
     def determinant(self) -> int:
         """Calculate the determinant of a matrix
@@ -250,6 +368,12 @@ class Matrix:
         if self.rows == 2:
             return self.mat[0][0] * self.mat[1][1] - self.mat[0][1] * self.mat[1][0]
 
+        if self.is_upper_triangular():
+            det = 1
+            for i in range(self.rows):
+                det *= self.mat[i][i]
+            return det
+
         det = 0
         for j in range(self.columns):
             sub_matrix = [
@@ -260,65 +384,6 @@ class Matrix:
             det += sign * self.mat[0][j] * Matrix(sub_matrix).determinant()
 
         return det
-
-    def eigenvalues(self) -> list[float]:
-        """Calculate the eigenvalues of a matrix
-        Args:
-            self: A Matrix object
-        Returns:
-            Returns a list of eigenvalues as floats
-        Raises:
-            DimensionError: If the matrix is not square.
-        """
-        pass
-
-    def eigenvectors(self) -> list[Vector]:
-        """Calculate the eigenvectors of a matrix
-        Args:
-            self: A Matrix object
-        Returns:
-            Returns a list of eigenvectors as Vector objects
-        Raises:
-            DimensionError: If the matrix is not square.
-        """
-        pass
-
-    def rank(self) -> int:
-        """Calculate the rank of a matrix
-        Args:
-            self: A Matrix object
-        Returns:
-            Returns the rank as an integer
-        """
-
-        pass
-
-    def nullity(self) -> int:
-        """Calculate the nullity of a matrix
-        Args:
-            self: A Matrix object
-        Returns:
-            Returns the rank as an integer
-        """
-        pass
-
-    def conjugate_transpose(self) -> "Matrix":
-        """Calculate the conjugate transpose of a matrix
-        Args:
-            self: A Matrix object
-        Returns:
-        """
-        pass
-
-    def is_square(self) -> bool:
-        """Check if a matrix is square (i.e. has the same number of rows and columns)
-        Args:
-            self: A Matrix object
-        Returns:
-            True if the matrix is square, False otherwise
-        """
-        return self.rows == self.columns
-
 
 def identity(n: int) -> Matrix:
     """Create an nxn identity matrix

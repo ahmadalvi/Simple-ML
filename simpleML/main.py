@@ -5,11 +5,17 @@ import core.matrix as matrix
 
 
 def main():
-    m1 = Matrix(2, 2, [[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    tr = matrix.transpose(m1)
+    L = Matrix([
+            [1, 0, 0],
+            [2, 1, 0],
+            [-1, 4, 1]
+    ])
+    b = Vector([1, 2, 3])
 
-    m1.disp()
-    tr.disp()
+    y_expected = Vector([1, 0, 4])
+    y = L.forward_substitution(b)
+    print(y.arr)
+    print(y_expected.arr)
 
 
 if __name__ == "__main__":
