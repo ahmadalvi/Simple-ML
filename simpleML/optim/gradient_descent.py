@@ -1,18 +1,24 @@
 def gridLineSearch(theta, rhoFn, d, lambdaStepSize=0.01, lambdaMax=1):
-    lambdas = range(0, lambdaMax, lambdaStepSize)
-    rhoVals = lambdas.map(lambda l: rhoFn([t - l * di for t, di in zip(theta, d)]))
+    lambdas = [i + lambdaStepSize for i in range(int(lambdaMax / lambdaStepSize))]
+    rhoVals = [rhoFn([t - l * di for t, di in zip(theta, d)]) for l in lambdas]
 
-    return rhoVals.index(min(rhoVals))
+    best_idx = rhoVals.index(min(rhoVals))
+    return lambdas[best_idx]
 
 
 def testConvergence(thetaNew, thetaOld, tolerance=1e-6, relative=False):
-    abs_diffs = sum([abs(thetaNew[i] - thetaOld[i] for i in range(len(thetaNew)))])
-    rel_diffs = abs_diffs / (sum(abs(thetaOld[i]) for i in range(len(thetaOld))))
+    diffs = [abs(a - b) for a, b in zip(thetaNew, thetaOld)]
+    abs_norm = sum(d**2 for d in diffs) ** 0.5
 
-    if relative:
-        return rel_diffs < tolerance
-    else:
-        return abs_diffs < tolerance
+    if not relative:
+        return abs_norm < tolerance
+
+    denom = sum(abs(b) for b in thetaOld)
+    if denom == 0:
+        return abs_norm < tolerance
+
+    rel_norm = abs_norm / denom
+    return rel_norm < tolerance
 
 
 def gradient_descent(
@@ -32,12 +38,15 @@ def gradient_descent(
 
     while not converged and iter_count < maxIter:
         grad = gradFn(theta)
-        grad_length = sum(g**2 for g in grad) ** 0.5
+        print("Grad: ", grad)
+        grad_norm = sum(g**2 for g in grad) ** 0.5
+        print("Grad Norm: ", grad_norm)
 
-        if grad_length > 0:
-            d = [g / grad_length for g in grad]
+        if grad_norm > 0:
+            d = [-g / grad_norm for g in grad]
         else:
-            d = grad
+            d = [-g for g in grad]
+        print("D: ", d)
 
         step = lineSearchFn(
             theta=theta,
@@ -47,6 +56,8 @@ def gradient_descent(
             lambdaMax=lambdaMax,
         )
 
+        print("Step size:", step)
+
         try:
             thetaNew = [t - step * di for t, di in zip(theta, d)]
         except TypeError:
@@ -55,6 +66,9 @@ def gradient_descent(
         converged = testConvergenceFn(
             thetaNew, theta, tolerance=toler, relative=relative
         )
+        print("Converged:", converged)
 
         theta = thetaNew
         iter_count += 1
+
+    return [theta, converged, iter_count, rhoFn(theta)]
