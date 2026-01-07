@@ -22,8 +22,6 @@ def main():
         gradFn=grad,
         lineSearchFn=gridLineSearch,
         testConvergenceFn=testConvergence,
-        maxIter=10,
-        toler=1e-6,
     )
     print(t)
 
