@@ -1,7 +1,11 @@
-class Model:
+from abc import ABC, abstractmethod
+
+class Model(ABC):
+    @abstractmethod
     def fit(self, X, y, optimizer):
         raise NotImplementedError
 
+    @abstractmethod
     def predict(self, X):
         raise NotImplementedError
 
