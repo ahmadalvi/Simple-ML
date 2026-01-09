@@ -9,14 +9,5 @@ class Optimizer(ABC):
     
     @abstractmethod
     def optimize(self, theta: Vector, loss_fn, grad_fn):
-        """
-        Optimize parameters.
-
-        Parameters:
-        theta Vector: Initial parameters.
-        loss_fn: Function to compute loss.
-        grad_fn: Function to compute gradient.
-
-        Returns:
-        theta: Vector
-        """
+        pass
+        

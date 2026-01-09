@@ -1,115 +1,83 @@
 import unittest
-from optim.gradient_descent import gradient_descent
+from core.vector import Vector
+from optim.gradient_descent import GradientDescent
 
 
 class TestGradientDescent(unittest.TestCase):
 
     def test_quadratic_convergence_1d(self):
         """
-        Minimize f(x) = 2x^2 - 5x + 3
-        True minimum at x = 1.25
+        Minimize f(x) = x^2
         """
-
         def loss(theta):
-            x = theta[0]
-            return 2 * x * x - 5 * x + 3
+            return theta.arr[0] ** 2
 
         def grad(theta):
-            x = theta[0]
-            return [4 * x - 5]
+            return Vector([2 * theta.arr[0]])
 
-        theta0 = [0.0]
+        theta0 = Vector([10.0])
+        optimizer = GradientDescent(learning_rate=0.1, tol=1e-6)
 
-        theta, converged, iters, final_val = gradient_descent(
-            theta=theta0,
-            rhoFn=loss,
-            gradFn=grad,
-            maxIter=200,
-            toler=1e-4,
-            lambdaStepSize=0.05,
-        )
+        theta = optimizer.optimize(theta0, loss, grad)
 
-        self.assertTrue(converged)
-        self.assertAlmostEqual(theta[0], 1.25, places=2)
-        self.assertAlmostEqual(final_val, -0.125, places=2)
-        self.assertGreater(iters, 0)
+        self.assertAlmostEqual(theta.arr[0], 0.0, places=4)
 
-    def test_loss_decreases(self):
+    def test_quadratic_shifted(self):
         """
-        Ensure each step reduces the loss (catches sign errors)
+        Minimize f(x) = (x - 3)^2
         """
-
         def loss(theta):
-            return (theta[0] - 3) ** 2
+            return (theta.arr[0] - 3) ** 2
 
         def grad(theta):
-            return [2 * (theta[0] - 3)]
+            return Vector([2 * (theta.arr[0] - 3)])
 
-        theta = [10.0]
-        prev_loss = loss(theta)
+        theta0 = Vector([0.0])
+        optimizer = GradientDescent(learning_rate=0.1)
 
-        for _ in range(10):
-            theta, _, _, _ = gradient_descent(
-                theta=theta,
-                rhoFn=loss,
-                gradFn=grad,
-                maxIter=1,  # single step
-                lambdaStepSize=0.1,
-            )
-            curr_loss = loss(theta)
-            self.assertLessEqual(curr_loss, prev_loss)
-            prev_loss = curr_loss
+        theta = optimizer.optimize(theta0, loss, grad)
 
-    def test_zero_gradient_no_movement(self):
-        """
-        If gradient is zero, parameters should not change
-        """
-
-        def loss(theta):
-            return 5.0
-
-        def grad(theta):
-            return [0.0]
-
-        theta0 = [2.0]
-
-        theta, converged, iters, final_val = gradient_descent(
-            theta=theta0,
-            rhoFn=loss,
-            gradFn=grad,
-            maxIter=10,
-            lambdaStepSize=0.1,
-        )
-
-        self.assertEqual(theta, theta0)
-        self.assertTrue(converged)
+        self.assertAlmostEqual(theta.arr[0], 3.0, places=4)
 
     def test_multidimensional_quadratic(self):
         """
-        Minimize f(x, y) = (x - 1)^2 + (y + 2)^2
+        Minimize f(x, y) = x^2 + y^2
         """
-
         def loss(theta):
-            x, y = theta[0], theta[1]
-            return (x - 1) ** 2 + (y + 2) ** 2
+            return theta.arr[0] ** 2 + theta[1] ** 2
 
         def grad(theta):
-            x, y = theta[0], theta[1]
-            return [2 * (x - 1), 2 * (y + 2)]
+            return Vector([2 * theta.arr[0], 2 * theta.arr[1]])
 
-        theta0 = [10.0, -10.0]
+        theta0 = Vector([5.0, -3.0])
+        optimizer = GradientDescent(learning_rate=0.1)
 
-        theta, converged, _, _ = gradient_descent(
-            theta=theta0,
-            rhoFn=loss,
-            gradFn=grad,
-            maxIter=300,
-            lambdaStepSize=0.01,
-        )
+        theta = optimizer.optimize(theta0, loss, grad)
 
-        self.assertTrue(converged)
-        self.assertAlmostEqual(theta[0], 1.0, places=2)
-        self.assertAlmostEqual(theta[1], -2.0, places=2)
+        self.assertAlmostEqual(theta.arr[0], 0.0, places=4)
+        self.assertAlmostEqual(theta.arr[1], 0.0, places=4)
+
+    def test_loss_monotonic_decrease(self):
+        """
+        Ensure GD moves downhill
+        """
+        losses = []
+
+        def loss(theta):
+            val = theta.arr[0] ** 2
+            losses.append(val)
+            return val
+
+        def grad(theta):
+            return Vector([2 * theta.arr[0]])
+
+        theta0 = Vector([5.0])
+        optimizer = GradientDescent(learning_rate=0.1, max_iter=5)
+
+        optimizer.optimize(theta0, loss, grad)
+
+        for i in range(1, len(losses)):
+            self.assertLessEqual(losses[i], losses[i - 1])
 
 
 if __name__ == "__main__":

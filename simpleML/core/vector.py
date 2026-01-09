@@ -4,8 +4,9 @@ from core.exceptions import DimensionError
 
 class Vector:
     def __init__(self, arr):
-        self.arr = arr
-        self.n = len(arr)
+        self.arr = list(arr)
+        self.n = len(self.arr)
+
 
     def __repr__(self):
         print("[ ", end="")
@@ -54,15 +55,13 @@ class Vector:
         DimensionError: If vectors are not the same size.
 
         """
-        vec = Vector([])
 
         if self.n != other.n:
             raise DimensionError("Error: Vectors must be the same size.")
-        else:
-            for i in range(self.n):
-                vec.arr.append(self.arr[i] + other.arr[i])
+        
+        return Vector([a + b for a, b in zip(self.arr, other.arr)])
 
-        return vec
+   
 
     def __sub__(self, other) -> "Vector":
         """Subtract 2 n-dimensional vectors
@@ -78,14 +77,11 @@ class Vector:
         DimensionError: If vectors are not the same size.
 
         """
-        vec = Vector([])
-
         if self.n != other.n:
             raise DimensionError("Error: Vectors must be the same size.")
-        else:
-            for i in range(self.n):
-                vec.arr.append(self.arr[i] - other.arr[i])
-        return vec
+        
+        return Vector([a - b for a, b in zip(self.arr, other.arr)])
+
 
     def scalarmult(self, alpha: int) -> "Vector":
         """Multiply an n-dimensional vector with a scalar
@@ -98,9 +94,7 @@ class Vector:
             Returns the product as a new vector
 
         """
-        vec = Vector([alpha * x for x in self.arr])
-
-        return vec
+        return Vector([alpha * x for x in self.arr])
 
     def norm(self, type: str = "euclidean") -> int:
         """Calculate the norm of a vector

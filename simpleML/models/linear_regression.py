@@ -1,7 +1,6 @@
 from .base import Model
 from core.vector import Vector
 from core.matrix import Matrix
-from optim.base import Optimizer
 
 
 class LinearRegression(Model):
@@ -19,20 +18,16 @@ class LinearRegression(Model):
         def grad_fn(theta):
             return mse_gradient(theta, X, y)
         
-        self.theta = Optimizer.optimize(
-            theta = self.theta, 
-            loss_fn = loss_fn,
-            grad_fn = grad_fn
-        )
-    
+        self.theta = optimizer.optimize(self.theta, loss_fn, grad_fn)
+
         return self
 
 
 def mse_loss(theta: Vector, X: Matrix, y: Vector) -> float:
     predictions = X.vector_mult(theta)
-    return sum((yt - yp) ** 2 for yt, yp in zip(y, predictions)) / 2
+    return sum((yt - yp) ** 2 for yt, yp in zip(y.arr, predictions.arr)) / 2
 
 def mse_gradient(theta: Vector, X: Matrix, y: Vector) -> Vector: 
     predictions = X.vector_mult(theta)
-    errors = Vector([(yt - yp) for yt, yp in zip(y, predictions)])
+    errors = Vector([(yp - yt) for yt, yp in zip(y.arr, predictions.arr)])
     return X.transpose().vector_mult(errors)
