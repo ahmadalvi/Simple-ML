@@ -12,20 +12,18 @@ class TestLinearRegression(unittest.TestCase):
         """
         Fit y = 2x + 1
         """
-        X = Matrix([
-            [1, 0],
-            [1, 1],
-            [1, 2],
-            [1, 3],
-        ])
+        X = Matrix(
+            [
+                [1, 0],
+                [1, 1],
+                [1, 2],
+                [1, 3],
+            ]
+        )
         y = Vector([1, 3, 5, 7])
 
         model = LinearRegression(complexity=1)
-        optimizer = GradientDescent(
-            learning_rate=0.1,
-            max_iter=5000,
-            tol=1e-6
-        )
+        optimizer = GradientDescent(learning_rate=0.1, max_iter=5000, tol=1e-6)
 
         model.fit(X, y, optimizer)
         theta = model.theta.arr
@@ -40,10 +38,12 @@ class TestLinearRegression(unittest.TestCase):
         model = LinearRegression(complexity=1)
         model.theta = Vector([1.0, 2.0])  # y = 2x + 1
 
-        X = Matrix([
-            [1, 4],
-            [1, 5],
-        ])
+        X = Matrix(
+            [
+                [1, 4],
+                [1, 5],
+            ]
+        )
 
         preds = model.predict(X)
 
@@ -54,18 +54,17 @@ class TestLinearRegression(unittest.TestCase):
         """
         Loss should decrease after training
         """
-        X = Matrix([
-            [1, 0],
-            [1, 1],
-            [1, 2],
-        ])
+        X = Matrix(
+            [
+                [1, 0],
+                [1, 1],
+                [1, 2],
+            ]
+        )
         y = Vector([1, 3, 5])
 
         model = LinearRegression(complexity=1)
-        optimizer = GradientDescent(
-            learning_rate=0.1,
-            max_iter=2000
-        )
+        optimizer = GradientDescent(learning_rate=0.1, max_iter=2000)
 
         initial_loss = mse_loss(model.theta, X, y)
         model.fit(X, y, optimizer)
@@ -77,20 +76,18 @@ class TestLinearRegression(unittest.TestCase):
         """
         Fit y = 3x1 + 2x2 + 1
         """
-        X = Matrix([
-            [1, 0, 0],
-            [1, 1, 0],
-            [1, 0, 1],
-            [1, 1, 1],
-        ])
+        X = Matrix(
+            [
+                [1, 0, 0],
+                [1, 1, 0],
+                [1, 0, 1],
+                [1, 1, 1],
+            ]
+        )
         y = Vector([1, 4, 3, 6])
 
         model = LinearRegression(complexity=2)
-        optimizer = GradientDescent(
-            learning_rate=0.1,
-            max_iter=5000,
-            tol=1e-6
-        )
+        optimizer = GradientDescent(learning_rate=0.1, max_iter=5000, tol=1e-6)
 
         model.fit(X, y, optimizer)
         theta = model.theta.arr

@@ -7,7 +7,6 @@ class Vector:
         self.arr = list(arr)
         self.n = len(self.arr)
 
-
     def __repr__(self):
         print("[ ", end="")
         for i in range(self.n):
@@ -58,10 +57,8 @@ class Vector:
 
         if self.n != other.n:
             raise DimensionError("Error: Vectors must be the same size.")
-        
-        return Vector([a + b for a, b in zip(self.arr, other.arr)])
 
-   
+        return Vector([a + b for a, b in zip(self.arr, other.arr)])
 
     def __sub__(self, other) -> "Vector":
         """Subtract 2 n-dimensional vectors
@@ -79,9 +76,8 @@ class Vector:
         """
         if self.n != other.n:
             raise DimensionError("Error: Vectors must be the same size.")
-        
-        return Vector([a - b for a, b in zip(self.arr, other.arr)])
 
+        return Vector([a - b for a, b in zip(self.arr, other.arr)])
 
     def scalarmult(self, alpha: int) -> "Vector":
         """Multiply an n-dimensional vector with a scalar

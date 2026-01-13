@@ -9,6 +9,7 @@ class TestGradientDescent(unittest.TestCase):
         """
         Minimize f(x) = x^2
         """
+
         def loss(theta):
             return theta.arr[0] ** 2
 
@@ -26,6 +27,7 @@ class TestGradientDescent(unittest.TestCase):
         """
         Minimize f(x) = (x - 3)^2
         """
+
         def loss(theta):
             return (theta.arr[0] - 3) ** 2
 
@@ -43,6 +45,7 @@ class TestGradientDescent(unittest.TestCase):
         """
         Minimize f(x, y) = x^2 + y^2
         """
+
         def loss(theta):
             return theta.arr[0] ** 2 + theta[1] ** 2
 
