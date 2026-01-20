@@ -124,6 +124,7 @@ class TestLogisticRegression(unittest.TestCase):
 
         self.assertGreaterEqual(accuracy, 0.83)
 
+    
 
 if __name__ == "__main__":
     unittest.main()

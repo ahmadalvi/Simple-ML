@@ -5,8 +5,9 @@ import math
 
 
 class LogisticRegression(Model):
-    def __init__(self, complexity: int = 1):
+    def __init__(self, complexity: int = 1, l2: float = 0.0):
         self.complexity = complexity
+        self.l2 = l2
         self.theta = Vector([0] * (complexity + 1))
 
     def sigmoid(self, z: Vector) -> Vector:
@@ -21,11 +22,17 @@ class LogisticRegression(Model):
 
     def fit(self, X: Matrix, y: Vector, optimizer):
         def loss_fn(theta):
-            return log_loss(theta, X, y)
+            base_loss = log_loss(theta, X, y)
+            reg_loss = (self.l2 / 2) * coef_sq(theta)
+            return base_loss + reg_loss
 
         def grad_fn(theta):
-            return log_gradient(theta, X, y)
-
+            base_grad = log_gradient(theta, X, y)
+            reg_grad = Vector(
+                [0.0] + [self.l2 * ti for ti in theta.arr[1:]]
+            )
+            return base_grad + reg_grad
+        
         self.theta = optimizer.optimize(self.theta, loss_fn, grad_fn)
 
         return self
@@ -59,3 +66,6 @@ def log_gradient(theta: Vector, X: Matrix, y: Vector) -> Vector:
             ]
         )
     )
+
+def coef_sq(theta):
+    return sum(ti ** 2 for ti in theta.arr[1:])
