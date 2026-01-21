@@ -1,6 +1,6 @@
 from .base import Model
 from core.vector import Vector
-from core.matrix import Matrix
+from core.matrix import Matrix, diag
 import math
 
 
@@ -28,12 +28,20 @@ class LogisticRegression(Model):
 
         def grad_fn(theta):
             base_grad = log_gradient(theta, X, y)
-            reg_grad = Vector(
-                [0.0] + [self.l2 * ti for ti in theta.arr[1:]]
-            )
+            reg_grad = Vector([0.0] + [self.l2 * ti for ti in theta.arr[1:]])
             return base_grad + reg_grad
-        
-        self.theta = optimizer.optimize(self.theta, loss_fn, grad_fn)
+
+        def hess_fn(theta):
+            p = self.sigmoid(X.vector_mult(theta))
+            W = diag([pi * (1 - pi) for pi in p.arr])
+            H = X.transpose().matrix_mult(W).matrix_mult(X)
+
+            for i in range(1, H.rows):
+                H.mat[i][i] += self.l2
+
+            return H
+
+        self.theta = optimizer.optimize(self.theta, loss_fn, grad_fn, hess_fn)
 
         return self
 
@@ -67,5 +75,6 @@ def log_gradient(theta: Vector, X: Matrix, y: Vector) -> Vector:
         )
     )
 
+
 def coef_sq(theta):
-    return sum(ti ** 2 for ti in theta.arr[1:])
+    return sum(ti**2 for ti in theta.arr[1:])

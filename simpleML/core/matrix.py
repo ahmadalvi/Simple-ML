@@ -426,3 +426,15 @@ def ones(n: int) -> Matrix:
 
     """
     return Matrix([[1 for _ in range(n)] for _ in range(n)])
+
+
+def diag(arr: list) -> Matrix:
+    """Creates a diagonal matrix from a list of elements
+
+    Args:
+        arr: A list of elements
+    Returns:
+        Returns a Matrix Object
+    """
+    n = len(arr)
+    return Matrix([[arr[i] if i == j else 0 for j in range(n)] for i in range(n)])

@@ -21,7 +21,7 @@ class LinearRegression(Model):
         def grad_fn(theta):
             base_grad = mse_gradient(theta, X, y)
             reg_grad = [0.0] + [self.l2 * ti for ti in theta.arr[1:]]
-            
+
             return base_grad + Vector(reg_grad)
 
         self.theta = optimizer.optimize(self.theta, loss_fn, grad_fn)
@@ -39,5 +39,6 @@ def mse_gradient(theta: Vector, X: Matrix, y: Vector) -> Vector:
     errors = Vector([(yp - yt) for yt, yp in zip(y.arr, predictions.arr)])
     return X.transpose().vector_mult(errors)
 
+
 def coef_sq(theta):
-    return sum(ti ** 2 for ti in theta.arr[1:])
+    return sum(ti**2 for ti in theta.arr[1:])

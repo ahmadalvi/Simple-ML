@@ -101,12 +101,14 @@ class TestLinearRegression(unittest.TestCase):
         """
         Bias term theta[0] should not be affected by L2 regularization
         """
-        X = Matrix([
-            [1, 1],
-            [1, 2],
-            [1, 3],
-            [1, 4],
-        ])
+        X = Matrix(
+            [
+                [1, 1],
+                [1, 2],
+                [1, 3],
+                [1, 4],
+            ]
+        )
         y = Vector([3, 5, 7, 9])  # y = 2x + 1
 
         opt = GradientDescent(learning_rate=0.01, max_iter=1000)
@@ -118,9 +120,7 @@ class TestLinearRegression(unittest.TestCase):
         model_l2.fit(X, y, opt)
         # Bias should be approximately the same
         self.assertAlmostEqual(
-            model_no_reg.theta.arr[0],
-            model_l2.theta.arr[0],
-            places=0
+            model_no_reg.theta.arr[0], model_l2.theta.arr[0], places=0
         )
 
     def test_l2_shrinks_weights(self):
@@ -128,12 +128,14 @@ class TestLinearRegression(unittest.TestCase):
         L2 regularization should shrink non-bias weights
         """
 
-        X = Matrix([
-            [1, 1],
-            [1, 2],
-            [1, 3],
-            [1, 4],
-        ])
+        X = Matrix(
+            [
+                [1, 1],
+                [1, 2],
+                [1, 3],
+                [1, 4],
+            ]
+        )
         y = Vector([3, 5, 7, 9])  # y = 2x + 1
 
         opt = GradientDescent(learning_rate=0.01, max_iter=1000)
@@ -145,22 +147,21 @@ class TestLinearRegression(unittest.TestCase):
         model_l2.fit(X, y, opt)
 
         # Weight magnitude should be smaller with L2
-        self.assertLess(
-            abs(model_l2.theta.arr[1]),
-            abs(model_no_reg.theta.arr[1])
-        )
-    
+        self.assertLess(abs(model_l2.theta.arr[1]), abs(model_no_reg.theta.arr[1]))
+
     def test_strong_l2_drives_weights_to_zero(self):
         """
         Very large L2 should heavily penalize weights
         """
 
-        X = Matrix([
-            [1, 1],
-            [1, 2],
-            [1, 3],
-            [1, 4],
-        ])
+        X = Matrix(
+            [
+                [1, 1],
+                [1, 2],
+                [1, 3],
+                [1, 4],
+            ]
+        )
         y = Vector([3, 5, 7, 9])
 
         opt = GradientDescent(learning_rate=0.01, max_iter=1000)
@@ -176,17 +177,19 @@ class TestLinearRegression(unittest.TestCase):
         L2 regularization should increase loss for same parameters
         """
 
-        X = Matrix([
-            [1, 1],
-            [1, 2],
-        ])
+        X = Matrix(
+            [
+                [1, 1],
+                [1, 2],
+            ]
+        )
         y = Vector([3, 5])
 
         theta = Vector([1.0, 2.0])
         l2 = 10.0
 
         def coef_sq(theta):
-            return sum(ti ** 2 for ti in theta.arr[1:])
+            return sum(ti**2 for ti in theta.arr[1:])
 
         base_loss = mse_loss(theta, X, y)
         reg_loss = base_loss + (l2 / 2) * coef_sq(theta)

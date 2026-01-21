@@ -6,7 +6,7 @@ from models.logistic_regression import (
 )
 from core.vector import Vector
 from core.matrix import Matrix
-from optim.gradient_descent import GradientDescent
+from optim.newton_raphson import NewtonOptimizer
 
 
 class TestLogisticRegression(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestLogisticRegression(unittest.TestCase):
         grad = log_gradient(theta, X, y)
         self.assertEqual(grad.n, theta.n)
 
-    def test_simple_separable_fit(self):
+    def test_simple_separable_fit_newton(self):
         """
         Linearly separable dataset:
         y = 1 if x > 0, else 0
@@ -65,10 +65,9 @@ class TestLogisticRegression(unittest.TestCase):
         y = Vector([0, 0, 1, 1])
 
         model = LogisticRegression(complexity=1)
-        optimizer = GradientDescent(
-            learning_rate=0.1,
-            max_iter=2000,
-            tol=1e-6,
+        optimizer = NewtonOptimizer(
+            max_iter=50,
+            tol=1e-8,
         )
 
         model.fit(X, y, optimizer)
@@ -93,9 +92,32 @@ class TestLogisticRegression(unittest.TestCase):
         for p, y in zip(probs.arr, preds.arr):
             self.assertEqual(y, 1 if p >= 0.5 else 0)
 
-    def test_accuracy_after_training(self):
+    def test_loss_decreases_after_fit(self):
         """
-        Slightly noisy but mostly separable
+        Ensure training actually reduces log loss
+        """
+        X = Matrix(
+            [
+                [1, -2],
+                [1, -1],
+                [1, 1],
+                [1, 2],
+            ]
+        )
+        y = Vector([0, 0, 1, 1])
+
+        model = LogisticRegression(complexity=1)
+        optimizer = NewtonOptimizer(max_iter=20, tol=1e-8)
+
+        initial_loss = log_loss(model.theta, X, y)
+        model.fit(X, y, optimizer)
+        final_loss = log_loss(model.theta, X, y)
+
+        self.assertLess(final_loss, initial_loss)
+
+    def test_newton_converges_quickly(self):
+        """
+        Newton should converge in very few iterations
         """
         X = Matrix(
             [
@@ -110,19 +132,14 @@ class TestLogisticRegression(unittest.TestCase):
         y = Vector([0, 0, 0, 1, 1, 1])
 
         model = LogisticRegression(complexity=1)
-        optimizer = GradientDescent(
-            learning_rate=0.1,
-            max_iter=3000,
-            tol=1e-6,
-        )
+        optimizer = NewtonOptimizer(max_iter=10, tol=1e-8)
 
         model.fit(X, y, optimizer)
         preds = model.predict(X)
 
-        correct = sum(1 for pi, yi in zip(preds.arr, y.arr) if pi == yi)
-        accuracy = correct / y.n
+        accuracy = sum(1 for pi, yi in zip(preds.arr, y.arr) if pi == yi) / y.n
 
-        self.assertGreaterEqual(accuracy, 0.83)
+        self.assertGreaterEqual(accuracy, 0.9)
 
 
 if __name__ == "__main__":
