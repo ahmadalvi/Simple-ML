@@ -1,5 +1,6 @@
 from core.vector import Vector
 from .base import Optimizer
+from .line_search import line_search
 
 
 class GradientDescent(Optimizer):
@@ -11,27 +12,21 @@ class GradientDescent(Optimizer):
     def optimize(self, theta: Vector, loss_fn, grad_fn) -> Vector:
         for _ in range(self.max_iter):
             grad = grad_fn(theta)
+            grad_norm = grad.norm()
 
-            if grad.norm() < self.tol:
+            if grad_norm < self.tol:
                 break
 
-            if self.normalize_grad and grad.norm() > 0:
-                grad = grad.scalarmult(1.0 / grad.norm())
+            # Use negative gradient as descent direction
+            if self.normalize_grad:
+                d = Vector([-g / grad_norm for g in grad.arr])
+            else:
+                d = Vector([-g for g in grad.arr])
 
-            theta = theta - grad.scalarmult(self.learning_rate)
+            step_size = line_search(theta, d, loss_fn)
+            theta = theta + d.scalarmult(step_size)
 
         return theta
-
-
-# def gridLineSearch(theta, rhoFn, d, lambdaStepSize=0.01, lambdaMax=1):
-#     lambdas = [0.0] + [
-#         k * lambdaStepSize for k in range(1, int(lambdaMax / lambdaStepSize) + 1)
-#     ]
-
-#     values = [rhoFn([t + l * di for t, di in zip(theta, d)]) for l in lambdas]
-
-#     best_idx = values.index(min(values))
-#     return lambdas[best_idx]
 
 
 # def testConvergence(thetaNew, thetaOld, tolerance=1e-10, relative=False):

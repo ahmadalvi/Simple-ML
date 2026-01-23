@@ -1,6 +1,7 @@
 import unittest
 from core.vector import Vector
 from optim.gradient_descent import GradientDescent
+from optim.line_search import line_search
 
 
 class TestGradientDescent(unittest.TestCase):
@@ -47,13 +48,13 @@ class TestGradientDescent(unittest.TestCase):
         """
 
         def loss(theta):
-            return theta.arr[0] ** 2 + theta[1] ** 2
+            return theta.arr[0] ** 2 + theta.arr[1] ** 2
 
         def grad(theta):
             return Vector([2 * theta.arr[0], 2 * theta.arr[1]])
 
         theta0 = Vector([5.0, -3.0])
-        optimizer = GradientDescent(learning_rate=0.1)
+        optimizer = GradientDescent(learning_rate=0.1, max_iter=10000, tol=1e-8, normalize_grad=False)
 
         theta = optimizer.optimize(theta0, loss, grad)
 
