@@ -1,6 +1,7 @@
 from typing import Callable
 from core.matrix import Matrix, identity
 from core.vector import Vector
+from .line_search import line_search
 from .base import Optimizer
 
 
@@ -22,7 +23,9 @@ class NewtonOptimizer(Optimizer):
 
             H_damped = H.add(identity(H.rows).scalar_mult(self.damping))
             step = H_damped.inverse().vector_mult(grad)
-            theta = theta - step
+            d = step.scalarmult(-1)
+            stepsize = line_search(theta, d, loss_fn)
+            theta = theta + d.scalarmult(stepsize)
 
             if step.norm() < self.tol:
                 break
