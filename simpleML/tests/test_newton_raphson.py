@@ -39,16 +39,20 @@ class TestNewtonRaphson(unittest.TestCase):
             return theta.arr[0] ** 2 + theta.arr[1] ** 2
 
         def grad(theta):
-            return Vector([
-                2 * theta.arr[0],
-                2 * theta.arr[1],
-            ])
+            return Vector(
+                [
+                    2 * theta.arr[0],
+                    2 * theta.arr[1],
+                ]
+            )
 
         def hess(theta):
-            return Matrix([
-                [2, 0],
-                [0, 2],
-            ])
+            return Matrix(
+                [
+                    [2, 0],
+                    [0, 2],
+                ]
+            )
 
         theta0 = Vector([5.0, -3.0])
         optimizer = NewtonOptimizer(max_iter=10, tol=1e-8)

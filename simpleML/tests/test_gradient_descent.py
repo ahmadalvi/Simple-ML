@@ -54,7 +54,9 @@ class TestGradientDescent(unittest.TestCase):
             return Vector([2 * theta.arr[0], 2 * theta.arr[1]])
 
         theta0 = Vector([5.0, -3.0])
-        optimizer = GradientDescent(learning_rate=0.1, max_iter=10000, tol=1e-8, normalize_grad=False)
+        optimizer = GradientDescent(
+            learning_rate=0.1, max_iter=10000, tol=1e-8, normalize_grad=False
+        )
 
         theta = optimizer.optimize(theta0, loss, grad)
 
