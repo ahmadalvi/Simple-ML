@@ -11,16 +11,51 @@ class LogisticRegression(Model):
         self.theta = Vector([0] * (complexity + 1))
 
     def sigmoid(self, z: Vector) -> Vector:
+        """
+        Apply the sigmoid function element-wise to a Vector.
+
+        Args:
+            z: A Vector object.
+
+        Returns:
+            A Vector object with the sigmoid function applied to each element.
+        """
         return Vector([1 / (1 + math.exp(-zi)) for zi in z.arr])
 
     def predict(self, X: Matrix) -> Vector:
+        """
+        Predict binary class labels for given input data using the learned logistic model.
+
+        Args:
+            X: A Matrix object where each row represents a data point and each column represents a feature.
+        Returns:
+            A Vector object containing the predicted class labels (0 or 1) for each data point in X.
+        """
         probs = self.predict_proba(X)
         return Vector([1 if p >= 0.5 else 0 for p in probs.arr])
 
     def predict_proba(self, X: Matrix) -> Vector:
+        """
+        Predict probabilities for the positive class for given input data using the learned logistic model.
+        Args:
+            X: A Matrix object where each row represents a data point and each column represents a feature.
+        Returns:
+            A Vector object containing the predicted probabilities for the positive class for each data point in X.
+        """
         return self.sigmoid(X.vector_mult(self.theta))
 
-    def fit(self, X: Matrix, y: Vector, optimizer):
+    def fit(self, X: Matrix, y: Vector, optimizer) -> "LogisticRegression":
+        """
+        Fit the logistic regression model to the provided training data.
+
+        Args:
+            X: A Matrix object where each row represents a data point and each column represents a feature.
+            y: A Vector object containing the target binary class labels for each data point in X.
+            optimizer: An optimizer object used to update the model parameters.
+        Returns:
+            Returns the fitted LogisticRegression model instance.
+        """
+
         def loss_fn(theta):
             base_loss = log_loss(theta, X, y)
             reg_loss = (self.l2 / 2) * coef_sq(theta)
@@ -46,6 +81,13 @@ class LogisticRegression(Model):
         return self
 
     def accuracy(self, X: Matrix, y: Vector) -> float:
+        """Calculate the accuracy of the logistic regression model on the given data.
+        Args:
+            X: A Matrix object where each row represents a data point and each column represents a feature.
+            y: A Vector object containing the true binary class labels for each data point in X.
+        Returns:
+            A float representing the accuracy of the model on the provided data.
+        """
         predictions = self.predict(X)
         correct = sum(1 for yp, yt in zip(predictions.arr, y.arr) if yp == yt)
         return correct / len(y.arr)
